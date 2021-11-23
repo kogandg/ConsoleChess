@@ -246,12 +246,17 @@ namespace ConsoleChess
             {
                 for (int column = 0; column < 8; column++)
                 {
-                    if (row == 0 && column == 0)
-                    {
-                        ;
-                    }
                     Console.ForegroundColor = ConsoleColor.White;
-                    if (column == currentPosition.X && row == currentPosition.Y)
+                    var output = GridSquares[row, column];
+                    if (output.IsWhite())
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                    }
+                    if (output.CurrentPosition == currentPosition)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         if (showMoves)
@@ -260,7 +265,7 @@ namespace ConsoleChess
                         }
                     }
                     Console.SetCursorPosition(((column + 1) * squareWidth) - 4, ((row + 1) * squareHeight) - 1);
-                    Console.Write(fenToScreenOutput[GridSquares[row, column].FENNotation]);//fenToCentered[GridSquares[row, column]]);
+                    Console.Write(fenToScreenOutput[output.FENNotation]);//fenToCentered[GridSquares[row, column]]);
                 }
             }
 
