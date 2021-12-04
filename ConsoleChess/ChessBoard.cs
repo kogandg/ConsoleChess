@@ -82,7 +82,7 @@ namespace ConsoleChess
             };
 
             currentMoveIndex = 0;
-            currentPosition = new Point(0, 0);
+            currentPosition = new Point(5, 7);
 
             isCurrentMoveWhite = true;
             EnPassantTargetSquare = new Point(-1, -1);
@@ -506,31 +506,50 @@ namespace ConsoleChess
                                 isPromoting = true;
                             }
                         }
+
+                        isCurrentMoveWhite = !isCurrentMoveWhite;
                     }
                 }
             }
 
             else if (!isPromoting)
             {
+                Point tempPoint;
                 if (keyPressed == KeyPressed.Left)
                 {
                     showMoves = false;
-                    currentPosition = currentPositionMoveHelper(new Point(-1, 0));
+                    tempPoint = currentPositionMoveHelper(new Point(-1, 0));
+                    if(this[tempPoint].IsWhite() == isCurrentMoveWhite)
+                    {
+                        currentPosition = tempPoint;
+                    }
                 }
                 else if (keyPressed == KeyPressed.Right)
                 {
                     showMoves = false;
-                    currentPosition = currentPositionMoveHelper(new Point(1, 0));
+                    tempPoint = currentPositionMoveHelper(new Point(1, 0));
+                    if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
+                    {
+                        currentPosition = tempPoint;
+                    }
                 }
                 else if (keyPressed == KeyPressed.Up)
                 {
                     showMoves = false;
-                    currentPosition = currentPositionMoveHelper(new Point(0, -1));//currentPositionMoveHelper(new Point(0, -1));
+                    tempPoint = currentPositionMoveHelper(new Point(0, -1));//currentPositionMoveHelper(new Point(0, -1));
+                    if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
+                    {
+                        currentPosition = tempPoint;
+                    }
                 }
                 else if (keyPressed == KeyPressed.Down)
                 {
                     showMoves = false;
-                    currentPosition = currentPositionMoveHelper(new Point(0, 1));//currentPositionMoveHelper(new Point(0, 1));
+                    tempPoint = currentPositionMoveHelper(new Point(0, 1));//currentPositionMoveHelper(new Point(0, 1));
+                    if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
+                    {
+                        currentPosition = tempPoint;
+                    }
                 }
                 else if (keyPressed == KeyPressed.Enter)
                 {
