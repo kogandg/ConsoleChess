@@ -43,7 +43,7 @@ namespace ConsoleChess
         private static void RunGame(ChessBoard chessBoard)
         {
             var keyPressed = ConsoleKey.NoName;
-            string currentFEN = "rnbqkbnr/1pp1pppp/8/8/8/p2p4/PPPPPPPP/RNBQKBNR w -";
+            string currentFEN = "rnbqkbnr/1pp1pppp/8/8/8/p2p4/PPPPPPPP/RNBQKBNR w KQkq -";
             while (true)
             {
                 chessBoard.FromFEN(currentFEN);

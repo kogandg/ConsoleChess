@@ -44,6 +44,11 @@ namespace ConsoleChess
         bool once;
         bool hasPromoted;
 
+        bool KCastle;
+        bool QCastle;
+        bool kCastle;
+        bool qCastle;
+
         private bool isCurrentMoveWhite;
         public Point EnPassantTargetSquare { get; private set; }
 
@@ -507,6 +512,17 @@ namespace ConsoleChess
                             }
                         }
 
+                        if(!(GridSquares[4, 0] is King))
+                        {
+                            kCastle = false;
+                            qCastle = false;
+                        }
+                        if(!(GridSquares[4, 7] is King))
+                        {
+                            KCastle = false;
+                            QCastle = false;
+                        }
+
                         isCurrentMoveWhite = !isCurrentMoveWhite;
                     }
                 }
@@ -519,7 +535,7 @@ namespace ConsoleChess
                 {
                     showMoves = false;
                     tempPoint = currentPositionMoveHelper(new Point(-1, 0));
-                    if(this[tempPoint].IsWhite() == isCurrentMoveWhite)
+                    if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
                     {
                         currentPosition = tempPoint;
                     }
