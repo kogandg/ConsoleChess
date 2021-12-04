@@ -40,6 +40,9 @@ namespace ConsoleChess
         private bool showMoves;
         private bool isPromoting;
         private int promotionIndex;
+        private char[] promotionPieces;
+        bool once;
+        bool hasPromoted;
 
         private bool isCurrentMoveWhite;
         public Point EnPassantTargetSquare { get; private set; }
@@ -85,6 +88,15 @@ namespace ConsoleChess
             EnPassantTargetSquare = new Point(-1, -1);
 
             promotionIndex = 0;
+            promotionPieces = new char[4]
+            {
+                'R',
+                'N',
+                'B',
+                'Q'
+            };
+            once = false;
+            hasPromoted = false;
 
             DrawGridOutline();
         }
@@ -227,7 +239,7 @@ namespace ConsoleChess
             if (suffixes[1] != "-")
             {
                 //EnPassantTargetSquare = new Point(suffixes[1][0] - 'a', suffixes[1][1] - 1);
-                EnPassantTargetSquare = new Point(suffixes[1][0]-'0', suffixes[1][1]-'0');
+                EnPassantTargetSquare = new Point(suffixes[1][0] - '0', suffixes[1][1] - '0');
                 Console.SetCursorPosition(0, 28);
                 Console.Write(suffixes[1]);
             }
@@ -248,14 +260,14 @@ namespace ConsoleChess
                 {
                     Console.ForegroundColor = ConsoleColor.White;
                     var output = GridSquares[row, column];
-                    if (output.IsWhite())
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
-                    }
-                    else
-                    {
-                        Console.ForegroundColor = ConsoleColor.Blue;
-                    }
+                    //if (output.IsWhite())
+                    //{
+                    //    Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                    //}
+                    //else
+                    //{
+                    //    Console.ForegroundColor = ConsoleColor.Blue;
+                    //}
                     if (output.CurrentPosition == currentPosition)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -293,11 +305,27 @@ namespace ConsoleChess
                 }
             }
 
-            if(isPromoting)
+            if (isPromoting)
             {
-                DrawPromotionMenuOutline(new Point(60, 6));
+                once = true;
+                Point startingPoint = new Point(60, 6);
+                DrawPromotionMenuOutline(startingPoint);
+                for (int i = 0; i < 4; i++)
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.SetCursorPosition(startingPoint.X + 3, startingPoint.Y + (squareHeight * i) + 2);
+                    if (i == promotionIndex)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    }
+                    Console.Write(fenToScreenOutput[promotionPieces[i]]);
+                }
             }
-
+            if (hasPromoted)
+            {
+                ClearPromotion(new Point(60, 6));
+                hasPromoted = false;
+            }
             return;
             #region SmallBoard
 
@@ -365,20 +393,32 @@ namespace ConsoleChess
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            for (int y = 0; y < (4*squareHeight)+1; y++)
+            for (int y = 0; y < (4 * squareHeight) + 1; y++)
             {
-                for (int x = 0; x < (1*squareWidth)+1; x++)
+                for (int x = 0; x < (1 * squareWidth) + 1; x++)
                 {
                     if (y % squareHeight == 0 && x != 0 && x != (4 * squareWidth))
                     {
-                        Console.SetCursorPosition(x+startingPoint.X, y+startingPoint.Y);
+                        Console.SetCursorPosition(x + startingPoint.X, y + startingPoint.Y);
                         Console.Write('_');//\u035F');
                     }
                     if (x % squareWidth == 0 && y != 0)
                     {
-                        Console.SetCursorPosition(x+startingPoint.X, y+startingPoint.Y);
+                        Console.SetCursorPosition(x + startingPoint.X, y + startingPoint.Y);
                         Console.Write('|');
                     }
+                }
+            }
+        }
+
+        void ClearPromotion(Point startingPoint)
+        {
+            for (int y = 0; y < (4 * squareHeight) + 1; y++)
+            {
+                for (int x = 0; x < (1 * squareWidth) + 1; x++)
+                {
+                    Console.SetCursorPosition(x + startingPoint.X, y + startingPoint.Y);
+                    Console.Write(" ");
                 }
             }
         }
@@ -396,8 +436,8 @@ namespace ConsoleChess
         }
 
         public void Update(KeyPressed keyPressed)
-        {   
-            if (showMoves)
+        {
+            if (showMoves && !isPromoting)
             {
                 var moves = GridSquares[currentPosition.Y, currentPosition.X].PossibleMoves();
                 if (keyPressed == KeyPressed.Right)
@@ -470,7 +510,7 @@ namespace ConsoleChess
                 }
             }
 
-            else
+            else if (!isPromoting)
             {
                 if (keyPressed == KeyPressed.Left)
                 {
@@ -501,13 +541,21 @@ namespace ConsoleChess
 
             if (isPromoting)
             {
-                if(keyPressed == KeyPressed.Up && promotionIndex > 0)
+                if (keyPressed == KeyPressed.Up && promotionIndex > 0)
                 {
                     promotionIndex--;
                 }
-                if(keyPressed == KeyPressed.Down && promotionIndex <4)
+                if (keyPressed == KeyPressed.Down && promotionIndex < 4)
                 {
                     promotionIndex++;
+                }
+                if (keyPressed == KeyPressed.Enter && once)
+                {
+                    GridSquares[currentPosition.Y, currentPosition.X] = fenToPiece[promotionPieces[promotionIndex]](this[currentPosition].PieceColor, currentPosition);
+                    promotionIndex = 0;
+                    isPromoting = false;
+                    once = false;
+                    hasPromoted = true;
                 }
             }
         }
