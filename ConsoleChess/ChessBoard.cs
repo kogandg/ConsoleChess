@@ -50,6 +50,7 @@ namespace ConsoleChess
         bool qCastle;
 
         private bool isCurrentMoveWhite;
+        private bool justMoved;
         public Point EnPassantTargetSquare { get; private set; }
 
         public ChessBoard(int width, int height)
@@ -87,7 +88,7 @@ namespace ConsoleChess
             };
 
             currentMoveIndex = 0;
-            currentPosition = new Point(5, 7);
+            currentPosition = new Point(0, 0);
 
             isCurrentMoveWhite = true;
             EnPassantTargetSquare = new Point(-1, -1);
@@ -102,6 +103,8 @@ namespace ConsoleChess
             };
             once = false;
             hasPromoted = false;
+
+            justMoved = false;
 
             DrawGridOutline();
         }
@@ -245,9 +248,11 @@ namespace ConsoleChess
             {
                 //EnPassantTargetSquare = new Point(suffixes[1][0] - 'a', suffixes[1][1] - 1);
                 EnPassantTargetSquare = new Point(suffixes[1][0] - '0', suffixes[1][1] - '0');
-                Console.SetCursorPosition(0, 28);
-                Console.Write(suffixes[1]);
             }
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.SetCursorPosition(0, 28);
+            Console.WriteLine(suffixes[0]);
+            Console.WriteLine(suffixes[1]);
         }
 
         #endregion
@@ -524,6 +529,7 @@ namespace ConsoleChess
                         }
 
                         isCurrentMoveWhite = !isCurrentMoveWhite;
+                        justMoved = true;
                     }
                 }
             }
@@ -534,40 +540,48 @@ namespace ConsoleChess
                 if (keyPressed == KeyPressed.Left)
                 {
                     showMoves = false;
-                    tempPoint = currentPositionMoveHelper(new Point(-1, 0));
+                    tempPoint = currentPositionMoveHelper(new Point(-1, 0), isCurrentMoveWhite);
                     if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
                     {
                         currentPosition = tempPoint;
                     }
+                    justMoved = false;
+                    //currentPosition = tempPoint;
                 }
                 else if (keyPressed == KeyPressed.Right)
                 {
                     showMoves = false;
-                    tempPoint = currentPositionMoveHelper(new Point(1, 0));
+                    tempPoint = currentPositionMoveHelper(new Point(1, 0), isCurrentMoveWhite);
                     if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
                     {
                         currentPosition = tempPoint;
                     }
+                    justMoved = false;
+                    //currentPosition = tempPoint;
                 }
                 else if (keyPressed == KeyPressed.Up)
                 {
                     showMoves = false;
-                    tempPoint = currentPositionMoveHelper(new Point(0, -1));//currentPositionMoveHelper(new Point(0, -1));
+                    tempPoint = currentPositionMoveHelper(new Point(0, -1), isCurrentMoveWhite);//currentPositionMoveHelper(new Point(0, -1));
                     if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
                     {
                         currentPosition = tempPoint;
                     }
+                    justMoved = false;
+                    //currentPosition = tempPoint;
                 }
                 else if (keyPressed == KeyPressed.Down)
                 {
                     showMoves = false;
-                    tempPoint = currentPositionMoveHelper(new Point(0, 1));//currentPositionMoveHelper(new Point(0, 1));
+                    tempPoint = currentPositionMoveHelper(new Point(0, 1), isCurrentMoveWhite);//currentPositionMoveHelper(new Point(0, 1));
                     if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
                     {
                         currentPosition = tempPoint;
                     }
+                    justMoved = false;
+                    //currentPosition = tempPoint;
                 }
-                else if (keyPressed == KeyPressed.Enter)
+                else if (keyPressed == KeyPressed.Enter && !justMoved)
                 {
                     showMoves = true;
                 }
@@ -598,7 +612,7 @@ namespace ConsoleChess
 
         #region MoveHelpers
 
-        public Point yChangeCurrentPositionMoveHelper(Point direction)
+        public Point yChangeCurrentPositionMoveHelper(Point direction, bool isWhiteTurn)
         {
             Point leftPoint = currentPosition;
             Point rightPoint = currentPosition;
@@ -609,11 +623,11 @@ namespace ConsoleChess
                 {
                     leftPoint += direction;
                     rightPoint += direction;
-                    if (leftPoint.IsInside() && !(this[leftPoint] is EmptyPiece))
+                    if (leftPoint.IsInside() && !(this[leftPoint] is EmptyPiece) && this[leftPoint].IsWhite() == isWhiteTurn)
                     {
                         return leftPoint;
                     }
-                    if (rightPoint.IsInside() && !(this[rightPoint] is EmptyPiece))
+                    if (rightPoint.IsInside() && !(this[rightPoint] is EmptyPiece) && this[rightPoint].IsWhite() == isWhiteTurn)
                     {
                         return rightPoint;
                     }
@@ -626,7 +640,7 @@ namespace ConsoleChess
             return currentPosition;
         }
 
-        public Point xChangeCurrentPositionMoveHelper(Point direction)
+        public Point xChangeCurrentPositionMoveHelper(Point direction, bool isWhiteTurn)
         {
             Point topPoint = currentPosition;
             Point bottomPoint = currentPosition;
@@ -637,11 +651,11 @@ namespace ConsoleChess
                 {
                     topPoint += direction;
                     bottomPoint += direction;
-                    if (topPoint.IsInside() && !(this[topPoint] is EmptyPiece))
+                    if (topPoint.IsInside() && !(this[topPoint] is EmptyPiece) && this[topPoint].IsWhite() == isWhiteTurn)
                     {
                         return topPoint;
                     }
-                    if (bottomPoint.IsInside() && !(this[bottomPoint] is EmptyPiece))
+                    if (bottomPoint.IsInside() && !(this[bottomPoint] is EmptyPiece) && this[bottomPoint].IsWhite() == isWhiteTurn)
                     {
                         return bottomPoint;
                     }
@@ -654,15 +668,15 @@ namespace ConsoleChess
             return currentPosition;
         }
 
-        public Point currentPositionMoveHelper(Point direction)
+        public Point currentPositionMoveHelper(Point direction, bool isWhiteTurn)
         {
             if (direction.X != 0)
             {
-                return xChangeCurrentPositionMoveHelper(direction);
+                return xChangeCurrentPositionMoveHelper(direction, isWhiteTurn);
             }
             else
             {
-                return yChangeCurrentPositionMoveHelper(direction);
+                return yChangeCurrentPositionMoveHelper(direction, isWhiteTurn);
             }
             //Point newPosition = currentPosition;
             //newPosition += direction;
