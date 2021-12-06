@@ -165,41 +165,6 @@ namespace ConsoleChess
             return FEN.ToString();
         }
 
-        //public void FromFEN(string fen)
-        //{
-        //    string[] rows = fen.Split("/");
-        //    int blankSpace = 0;
-        //    int currentColumnPlus = 0;
-        //    for (int row = 0; row < rows.Length; row++)
-        //    {
-        //        for (int column = 0; column < rows[row].Length; column++)
-        //        {
-
-        //            blankSpace = 0;
-        //            if (rows[row] == "3p4")
-        //            {
-        //                ;
-        //            }
-        //            if (char.IsDigit(rows[row][column]))
-        //            {
-        //                blankSpace = int.Parse(rows[row][column].ToString());
-        //            }
-        //            else
-        //            {
-        //                GridSquares[row, column + currentColumnPlus] = rows[row][column];
-        //            }
-
-        //            for (int i = 0; i < blankSpace; i++)
-        //            {
-        //                GridSquares[row, column + currentColumnPlus] = '.';
-        //                currentColumnPlus++;
-        //            }
-        //            //if(thing)
-        //        }
-        //        currentColumnPlus = 0;
-        //    }
-        //}
-
         public void FromFEN(string fen)
         {
             string[] rows = fen.Split("/");
@@ -250,7 +215,7 @@ namespace ConsoleChess
                 EnPassantTargetSquare = new Point(suffixes[1][0] - '0', suffixes[1][1] - '0');
             }
             Console.ForegroundColor = ConsoleColor.White;
-            Console.SetCursorPosition(0, 28);
+            Console.SetCursorPosition(0, 26);
             Console.WriteLine(suffixes[0]);
             Console.WriteLine(suffixes[1]);
         }
@@ -317,7 +282,6 @@ namespace ConsoleChess
 
             if (isPromoting)
             {
-                once = true;
                 Point startingPoint = new Point(60, 6);
                 DrawPromotionMenuOutline(startingPoint);
                 for (int i = 0; i < 4; i++)
@@ -606,6 +570,7 @@ namespace ConsoleChess
                     once = false;
                     hasPromoted = true;
                 }
+                once = true;
             }
         }
 
