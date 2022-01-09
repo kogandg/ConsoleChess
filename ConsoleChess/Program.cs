@@ -8,7 +8,8 @@ namespace ConsoleChess
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
-            ChessBoard chessBoard = new ChessBoard(7, 3);
+            ConsoleChessVisualizer consoleChessVisualizer = new ConsoleChessVisualizer(7, 3);
+            ChessBoard chessBoard = new ChessBoard(consoleChessVisualizer, 7, 3);
             //chessBoard.FromFEN("rnbqkbnr/1pp1pppp/8/8/8/p2p4/PPPPPPPP/RNBQKBNR w");
             //chessBoard.FromFEN("N7/8/8/8/4b3/8/8/8");
 
@@ -43,7 +44,8 @@ namespace ConsoleChess
         private static void RunGame(ChessBoard chessBoard)
         {
             var keyPressed = ConsoleKey.NoName;
-            string currentFEN = "rnbqkbnr/1pp1pppp/8/8/8/p2p4/PPPPPPPP/RNBQKBNR w -";
+            string currentFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -";
+            chessBoard.Visualizer.DrawBackgound();
             while (true)
             {
                 chessBoard.FromFEN(currentFEN);
