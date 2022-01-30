@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using ConsoleChess.Pieces;
 
@@ -30,10 +31,10 @@ namespace ConsoleChess
             }
         }
         public Piece[,] GridSquares { get; private set; }
-        private int squareHeight;
-        private int squareWidth;
+        //private int squareHeight;
+        //private int squareWidth;
         public Dictionary<char, string> FENToScreenOutput { get; private set; }
-        private Dictionary<char, Func<Color, Point, Piece>> fenToPiece;
+        private Dictionary<char, Func<PieceColors, Point, Piece>> fenToPiece;
 
         public int CurrentMoveIndex { get; private set; }
         public Point CurrentPosition { get; private set; }
@@ -41,7 +42,7 @@ namespace ConsoleChess
         public bool IsPromoting { get; private set; }
         public int PromotionIndex { get; private set; }
         public char[] PromotionPieces { get; private set; }
-        bool once;
+        public bool Once;
         public bool HasPromoted { get; set; }
 
         public bool KCastle { get; private set; }
@@ -52,15 +53,15 @@ namespace ConsoleChess
         private bool isCurrentMoveWhite;
         private bool justMoved;
         public Point EnPassantTargetSquare { get; private set; }
-
+        public List<Point> DrawingPoints;
         public IVisualizer Visualizer { get; private set; }
-
-        public ChessBoard(IVisualizer visualizer, int width, int height)
+        static int counter = 0;
+        public ChessBoard(IVisualizer visualizer)//, int width, int height)
         {
             Visualizer = visualizer;
             GridSquares = new Piece[8, 8];
-            squareWidth = width;
-            squareHeight = height;
+            //squareWidth = width;
+            //squareHeight = height;
 
             FENToScreenOutput = new Dictionary<char, string>()
             {
@@ -79,15 +80,15 @@ namespace ConsoleChess
                 ['k'] = "kg",
             };
 
-            fenToPiece = new Dictionary<char, Func<Color, Point, Piece>>()
+            fenToPiece = new Dictionary<char, Func<PieceColors, Point, Piece>>()
             {
-                ['.'] = (Color c, Point p) => new EmptyPiece(p, this),
-                ['P'] = (Color c, Point p) => new Pawn(c, p, this),
-                ['R'] = (Color c, Point p) => new Rook(c, p, this),
-                ['N'] = (Color c, Point p) => new Knight(c, p, this),
-                ['B'] = (Color c, Point p) => new Bishop(c, p, this),
-                ['Q'] = (Color c, Point p) => new Queen(c, p, this),
-                ['K'] = (Color c, Point p) => new King(c, p, this),
+                ['.'] = (PieceColors c, Point p) => new EmptyPiece(p, this),
+                ['P'] = (PieceColors c, Point p) => new Pawn(c, p, this),
+                ['R'] = (PieceColors c, Point p) => new Rook(c, p, this),
+                ['N'] = (PieceColors c, Point p) => new Knight(c, p, this),
+                ['B'] = (PieceColors c, Point p) => new Bishop(c, p, this),
+                ['Q'] = (PieceColors c, Point p) => new Queen(c, p, this),
+                ['K'] = (PieceColors c, Point p) => new King(c, p, this),
             };
 
             CurrentMoveIndex = 0;
@@ -104,10 +105,11 @@ namespace ConsoleChess
                 'B',
                 'Q'
             };
-            once = false;
+            Once = false;
             HasPromoted = false;
 
             justMoved = false;
+            DrawingPoints = new List<Point>();
         }
 
         public void DrawBoard()
@@ -122,7 +124,7 @@ namespace ConsoleChess
         {
             StringBuilder FEN = new StringBuilder();
             int blankSpace = 0;
-            for (int x = 0; x < 8; x++)
+            for (int x = 7; x >=0; x--)
             {
                 for (int y = 0; y < 8; y++)
                 {
@@ -210,18 +212,18 @@ namespace ConsoleChess
                     {
                         if (char.IsUpper(fenRows[currentFENRowValue][fenColumn]))
                         {
-                            GridSquares[row, currentColumnValue] = fenToPiece[fenRows[currentFENRowValue][fenColumn]]?.Invoke(Color.White, new Point(currentColumnValue, row));
+                            GridSquares[row, currentColumnValue] = fenToPiece[fenRows[currentFENRowValue][fenColumn]]?.Invoke(PieceColors.White, new Point(currentColumnValue, row));
                         }
                         else
                         {
-                            GridSquares[row, currentColumnValue] = fenToPiece[fenRows[currentFENRowValue][fenColumn].ToString().ToUpper()[0]]?.Invoke(Color.Black, new Point(currentColumnValue, row));
+                            GridSquares[row, currentColumnValue] = fenToPiece[fenRows[currentFENRowValue][fenColumn].ToString().ToUpper()[0]]?.Invoke(PieceColors.Black, new Point(currentColumnValue, row));
                         }
                         //GridSquares[row, currentColumnValue] = rows[row][fenColumn];
                         currentColumnValue++;
                     }
                 }
             }
-
+            ///////this line
             isCurrentMoveWhite = false;
             if (suffixes[0] == "w")
             {
@@ -432,9 +434,29 @@ namespace ConsoleChess
 
         public void Update(KeyPressed keyPressed)//need to make an input manager that works for both console and mono
         {
+            if (InCheck())
+            {
+                ;
+            }
             if (ShowMoves && !IsPromoting)
             {
-                var moves = GridSquares[CurrentPosition.Y, CurrentPosition.X].PossibleMoves();
+                var moves = GridSquares[CurrentPosition.Y, CurrentPosition.X].AllowedMoves();
+                //if(this[CurrentPosition] is King)
+                //{
+                //    moves = ((King)this[CurrentPosition]).AllowedMoves();
+                //}
+                //for (int i = 0; i < moves.Count; i++)
+                //{
+                //    var temp = moves[i];
+                //    MovePiece(CurrentPosition, temp);
+                //    if (WhiteCheckCheck())
+                //    {
+                //        moves.RemoveAt(i);
+                //        i--;
+                //    }
+                //    MovePiece(temp, CurrentPosition);
+                //}
+                //DrawingPoints = moves;
                 if (keyPressed == KeyPressed.Right)
                 {
                     moveMoveHelper(new Point(1, 0), moves.Count);
@@ -450,9 +472,12 @@ namespace ConsoleChess
                 }
                 if (keyPressed == KeyPressed.Enter)
                 {
+
                     ShowMoves = false;
                     if (moves.Count != 0)
                     {
+                        Point originalPosition = CurrentPosition;
+
                         Point prevPawnMove = new Point(-1, -1);
                         if (this[CurrentPosition] is Pawn)
                         {
@@ -461,23 +486,28 @@ namespace ConsoleChess
 
 
                         Point currentMove = moves[CurrentMoveIndex];
+
                         GridSquares[currentMove.Y, currentMove.X] = GridSquares[CurrentPosition.Y, CurrentPosition.X];
                         GridSquares[CurrentPosition.Y, CurrentPosition.X] = new EmptyPiece(CurrentPosition, this);
                         GridSquares[currentMove.Y, currentMove.X].CurrentPosition = currentMove;
                         CurrentMoveIndex = 0;
                         CurrentPosition = currentMove;
 
+                        if (InCheck())
+                        {
+                            ;
+                        }
 
 
                         if (currentMove == EnPassantTargetSquare)
                         {
                             if (this[currentMove].IsWhite())
                             {
-                                GridSquares[currentMove.Y + 1, currentMove.X] = fenToPiece['.']?.Invoke(Color.White, new Point(currentMove.Y + 1, currentMove.X));
+                                GridSquares[currentMove.Y + 1, currentMove.X] = fenToPiece['.']?.Invoke(PieceColors.White, new Point(currentMove.Y + 1, currentMove.X));
                             }
                             else
                             {
-                                GridSquares[currentMove.Y - 1, currentMove.X] = fenToPiece['.']?.Invoke(Color.White, new Point(currentMove.Y - 1, currentMove.X));
+                                GridSquares[currentMove.Y - 1, currentMove.X] = fenToPiece['.']?.Invoke(PieceColors.White, new Point(currentMove.Y - 1, currentMove.X));
                             }
                         }
 
@@ -505,17 +535,40 @@ namespace ConsoleChess
                             }
                         }
 
-
+                        if (this[currentMove] is King)
+                        {
+                            if (currentMove.X == 6)
+                            {
+                                if (this[currentMove].IsWhite() && KCastle)
+                                {
+                                    MovePiece(new Point(7, 0), new Point(5, 0));
+                                }
+                                else if (kCastle)
+                                {
+                                    MovePiece(new Point(7, 7), new Point(5, 7));
+                                }
+                            }
+                            else if (currentMove.X == 2)
+                            {
+                                if (this[currentMove].IsWhite() && QCastle)
+                                {
+                                    MovePiece(new Point(0, 0), new Point(3, 0));
+                                }
+                                else if (qCastle)
+                                {
+                                    MovePiece(new Point(0, 7), new Point(3, 7));
+                                }
+                            }
+                        }
 
                         isCurrentMoveWhite = !isCurrentMoveWhite;
                         justMoved = true;
                     }
                 }
             }
-
             else if (!IsPromoting)
             {
-                Point tempPoint;
+                Point tempPoint;                
                 if (keyPressed == KeyPressed.Left)
                 {
                     ShowMoves = false;
@@ -541,7 +594,7 @@ namespace ConsoleChess
                 else if (keyPressed == KeyPressed.Up)
                 {
                     ShowMoves = false;
-                    tempPoint = currentPositionMoveHelper(new Point(0, -1), isCurrentMoveWhite);//currentPositionMoveHelper(new Point(0, -1));
+                    tempPoint = currentPositionMoveHelper(new Point(0, 1), isCurrentMoveWhite);//currentPositionMoveHelper(new Point(0, -1));
                     if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
                     {
                         CurrentPosition = tempPoint;
@@ -552,7 +605,7 @@ namespace ConsoleChess
                 else if (keyPressed == KeyPressed.Down)
                 {
                     ShowMoves = false;
-                    tempPoint = currentPositionMoveHelper(new Point(0, 1), isCurrentMoveWhite);//currentPositionMoveHelper(new Point(0, 1));
+                    tempPoint = currentPositionMoveHelper(new Point(0, -1), isCurrentMoveWhite);//currentPositionMoveHelper(new Point(0, 1));
                     if (this[tempPoint].IsWhite() == isCurrentMoveWhite)
                     {
                         CurrentPosition = tempPoint;
@@ -563,8 +616,11 @@ namespace ConsoleChess
                 else if (keyPressed == KeyPressed.Enter && !justMoved)
                 {
                     ShowMoves = true;
+
                 }
             }
+
+           
 
 
             if (IsPromoting)
@@ -577,42 +633,46 @@ namespace ConsoleChess
                 {
                     PromotionIndex++;
                 }
-                if (keyPressed == KeyPressed.Enter && once)
+                if (keyPressed == KeyPressed.Enter && Once)
                 {
                     GridSquares[CurrentPosition.Y, CurrentPosition.X] = fenToPiece[PromotionPieces[PromotionIndex]](this[CurrentPosition].PieceColor, CurrentPosition);
                     PromotionIndex = 0;
                     IsPromoting = false;
-                    once = false;
+                    Once = false;
                     HasPromoted = true;
                 }
-                once = true;
+                Once = true;
             }
 
             if (!(GridSquares[0, 0] is Rook))
             {
-                qCastle = false;
+                QCastle = false;
             }
             if (!(GridSquares[0, 7] is Rook))
             {
-                kCastle = false;
+                KCastle = false;
             }
             if (!(GridSquares[7, 0] is Rook))
             {
-                QCastle = false;
+                qCastle = false;
             }
             if (!(GridSquares[7, 7] is Rook))
             {
-                KCastle = false;
+                kCastle = false;
             }
             if (!(GridSquares[0, 4] is King))
+            {
+                KCastle = false;
+                QCastle = false;
+            }
+            if (!(GridSquares[7, 4] is King))
             {
                 kCastle = false;
                 qCastle = false;
             }
-            if (!(GridSquares[7, 4] is King))
+            if (InCheck())
             {
-                KCastle = false;
-                QCastle = false;
+                ;
             }
 
             Console.SetCursorPosition(10, 26);
@@ -741,5 +801,118 @@ namespace ConsoleChess
             Console.SetCursorPosition(0, 29);
             Console.WriteLine(fen);
         }
+
+        public void MovePiece(Point from, Point to)
+        {
+            Point p = this[from].CurrentPosition;
+            this[from].CurrentPosition = this[to].CurrentPosition;
+            this[to].CurrentPosition = p;
+            Piece temp = this[from];
+            GridSquares[from.Y, from.X] = this[to];
+            GridSquares[to.Y, to.X] = temp;
+            counter++;
+        }
+
+        public bool InCheck(Piece piece)
+        {
+            for(int y = 0; y < 8; y++)
+            {
+                for(int x = 0; x < 8; x++)
+                {
+                    
+                    Piece current = GridSquares[y, x];
+                    if (current is King && x == 3 && y == 6)
+                    {
+                        Visualizer.DrawBoard(this);
+                        ;
+                    }
+                    //if (current == piece/*current.IsWhite() == isCurrentMoveWhite*/) continue;
+
+                    var moves = current.PossibleMoves();
+                    for(int i = 0; i < moves.Count; i++)
+                    {
+                        var currentMove = moves[i];
+                        if(GridSquares[currentMove.Y, currentMove.X] is King)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool InCheck()
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                for (int x = 0; x < 8; x++)
+                {
+                    Piece current = GridSquares[y, x];
+                    if (current.IsWhite() == isCurrentMoveWhite) continue;
+
+                    var moves = current.PossibleMoves();
+                    for (int i = 0; i < moves.Count; i++)
+                    {
+                        var currentMove = moves[i];
+                        if (GridSquares[currentMove.Y, currentMove.X] is King)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        //public bool CheckCheck(bool isWhite)
+        //{
+        //    int k = 0; 
+        //    for (int y = 0; y < 8; y++)
+        //    {
+        //        for (int x = 0; x < 8; x++)
+        //        {
+        //            if(k == 9)
+        //            {
+        //                ;
+        //            }
+        //            var moves = GridSquares[y, x].PossibleMoves();
+        //            Debug.WriteLine(moves.Count);
+        //            for (int i = 0; i < moves.Count; i++)
+        //            {
+        //                if (this[moves[i]] is King && this[moves[i]].IsWhite() != isWhite)
+        //                {
+        //                    return true;// throw new Exception("White Check");
+        //                }
+        //            }
+        //            k++;
+        //        }
+        //    }
+        //    return false;
+        //}
+
+        //public bool CheckPieceCheck(Piece piece)
+        //{
+        //    for (int y = 0; y < 8; y++)
+        //    {
+        //        for (int x = 0; x < 8; x++)
+        //        {
+        //            if (GridSquares[y, x] == piece || GridSquares[y, x].IsWhite() == isCurrentMoveWhite)
+        //            {
+        //                ;
+        //                continue;
+        //            }
+        //            var moves = GridSquares[y, x].PossibleMoves();
+        //            for (int i = 0; i < moves.Count; i++)
+        //            {
+        //                if (this[moves[i]] is King && this[moves[i]].IsWhite() == isCurrentMoveWhite)
+        //                {
+        //                    return true;// throw new Exception("White Check");
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return false;
+        //}
     }
 }

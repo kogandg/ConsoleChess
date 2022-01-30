@@ -6,7 +6,7 @@ namespace ConsoleChess.Pieces
 {
     class Knight:Piece
     {
-        public Knight(Color color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
+        public Knight(PieceColors color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
         {
             if (IsWhite())
             {

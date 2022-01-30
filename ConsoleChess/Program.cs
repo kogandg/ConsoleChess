@@ -9,7 +9,7 @@ namespace ConsoleChess
         {
             Console.CursorVisible = false;
             ConsoleChessVisualizer consoleChessVisualizer = new ConsoleChessVisualizer(7, 3);
-            ChessBoard chessBoard = new ChessBoard(consoleChessVisualizer, 7, 3);
+            ChessBoard chessBoard = new ChessBoard(consoleChessVisualizer);//, 7, 3);
             //chessBoard.FromFEN("rnbqkbnr/1pp1pppp/8/8/8/p2p4/PPPPPPPP/RNBQKBNR w");
             //chessBoard.FromFEN("N7/8/8/8/4b3/8/8/8");
 
@@ -29,6 +29,7 @@ namespace ConsoleChess
             //Console.WriteLine($"{Console.CursorLeft}, {Console.CursorTop}");
         }
 
+
         static Dictionary<ConsoleKey, ChessBoard.KeyPressed> keys = new Dictionary<ConsoleKey, ChessBoard.KeyPressed>()
         {
             [ConsoleKey.NoName] = ChessBoard.KeyPressed.NoName,
@@ -44,14 +45,18 @@ namespace ConsoleChess
         private static void RunGame(ChessBoard chessBoard)
         {
             var keyPressed = ConsoleKey.NoName;
-            string currentFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -";
+            string checkTesting = "rnbqkbnr/1ppB2pp/8/p3pp2/3P4/4P3/PPP2PPP/RNBQK1NR b KQkq -0 1";//"8/8/8/7b/8/8/4P3/3K4 w - - 0 1";//"8/8/8/7b/8/8/8/4K3 w - - 0 1";//"8/8/8/7b/8/8/4P3/3K4 w - - 0 1";//"8/8/8/7b/8/8/8/3K4 w - - 0 1";//;
+            string currentFEN = checkTesting;//"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -";
+            //string castleingTestingBoard = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
+
             chessBoard.Visualizer.DrawBackgound();
             while (true)
             {
+                //if (keys.ContainsValue(keyPressed)) contine;
                 chessBoard.FromFEN(currentFEN);
                 chessBoard.Update(keys[keyPressed]);
                 chessBoard.DrawBoard();
-                
+
 
                 currentFEN = chessBoard.ToFEN();
 

@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Console = Colorful.Console;
+using System.Drawing;
 
 namespace ConsoleChess
 {
@@ -14,33 +16,41 @@ namespace ConsoleChess
         {
             squareWidth = width;
             squareHeight = height;
+            int c =  95;
+            Color color = Color.FromArgb(255, c, c, c);
+            Console.BackgroundColor = color;
+            Console.Clear();
+            Console.SetWindowSize(1, 35);
         }
 
         public void DrawBoard(ChessBoard chessBoard)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
 
+            int currentYValue;
+
             //Spaced out with outline
             for (int row = 0; row < 8; row++)
             {
+                currentYValue = Math.Abs(row-7);
                 for (int column = 0; column < 8; column++)
                 {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    var output = chessBoard[row, column];
-                    //if (output.IsWhite())
-                    //{
-                    //    Console.ForegroundColor = ConsoleColor.DarkMagenta;
-                    //}
-                    //else
-                    //{
-                    //    Console.ForegroundColor = ConsoleColor.Blue;
-                    //}
+                    Console.ForegroundColor = Color.White;
+                    var output = chessBoard[currentYValue, column];
+                    if (output.IsWhite())
+                    {
+                        Console.ForegroundColor = Color.White;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = Color.Black;
+                    }
                     if (output.CurrentPosition == chessBoard.CurrentPosition)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.ForegroundColor = Color.Red;
                         if (chessBoard.ShowMoves)
                         {
-                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.ForegroundColor = Color.Yellow;//Color.FromArgb(255, 249, 241, 165);
                         }
                     }
                     Console.SetCursorPosition(((column + 1) * squareWidth) - 4, ((row + 1) * squareHeight) - 1);
@@ -50,20 +60,25 @@ namespace ConsoleChess
 
             if (chessBoard.ShowMoves)
             {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                var moves = chessBoard[chessBoard.CurrentPosition.Y, chessBoard.CurrentPosition.X].PossibleMoves();
+                //Console.ForegroundColor = Color.Green;
+                //var moves = chessBoard.DrawingPoints;
+                var moves = chessBoard[chessBoard.CurrentPosition.Y, chessBoard.CurrentPosition.X].AllowedMoves();
+                //if(chessBoard[chessBoard.CurrentPosition] is King)
+                //{
+                //    moves = ((King)chessBoard[chessBoard.CurrentPosition]).AllowedMoves();
+                //}
                 for (int i = 0; i < moves.Count; i++)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.SetCursorPosition(((moves[i].X + 1) * squareWidth) - 4, ((moves[i].Y + 1) * squareHeight) - 1);
+                    Console.ForegroundColor = Color.Blue;
+                    Console.SetCursorPosition(((moves[i].X + 1) * squareWidth) - 4, ((Math.Abs(moves[i].Y-8)) * squareHeight)-1);
                     //Console.SetCursorPosition(((0 + 1) * squareWidth) - 4, ((1 + 1) * squareHeight) - 1);
                     if (i == chessBoard.CurrentMoveIndex)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.ForegroundColor = Color.Red;
                     }
                     if (chessBoard[moves[i].Y, moves[i].X] is EmptyPiece)
                     {
-                        Console.Write("..");
+                        Console.Write("▓▓");
                     }
                     else
                     {
@@ -78,11 +93,11 @@ namespace ConsoleChess
                 DrawPromotionMenuOutline(startingPoint);
                 for (int i = 0; i < 4; i++)
                 {
-                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = Color.White;
                     Console.SetCursorPosition(startingPoint.X + 3, startingPoint.Y + (squareHeight * i) + 2);
                     if (i == chessBoard.PromotionIndex)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.ForegroundColor = Color.Red;
                     }
                     Console.Write(chessBoard.FENToScreenOutput[chessBoard.PromotionPieces[i]]);
                 }
@@ -91,6 +106,7 @@ namespace ConsoleChess
             {
                 ClearPromotion(new Point(60, 6));
                 chessBoard.HasPromoted = false;
+                chessBoard.Once = false;
             }
             return;
             #region SmallBoard
@@ -135,7 +151,7 @@ namespace ConsoleChess
         }
         public void DrawBackgound()
         {
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = Color.MediumSeaGreen;//Color.LightGreen;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             for (int y = 0; y < (8 * squareHeight) + 1; y++)
             {
@@ -157,7 +173,7 @@ namespace ConsoleChess
 
         void DrawPromotionMenuOutline(Point startingPoint)
         {
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = Color.Black;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             for (int y = 0; y < (4 * squareHeight) + 1; y++)
             {

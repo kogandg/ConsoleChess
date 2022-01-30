@@ -6,7 +6,7 @@ namespace ConsoleChess.Pieces
 {
     class Bishop : Piece
     {
-        public Bishop(Color color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
+        public Bishop(PieceColors color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
         {
             if (IsWhite())
             {

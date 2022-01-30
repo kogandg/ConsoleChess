@@ -14,11 +14,11 @@ namespace ConsoleChess.Pieces
             public static int QueenSidePlacement = 2;
             public static int KingSidePlacement = 6;
 
-            public static int WhiteRow = 7; //wtf!
-            public static int BlackRow = 0; //wtf!
+            public static int WhiteRow = 0;
+            public static int BlackRow = 7;
         }
 
-        public King(Color color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
+        public King(PieceColors color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
         {
             if (IsWhite())
             {
@@ -44,9 +44,43 @@ namespace ConsoleChess.Pieces
                 }
             }
 
+            
+
             CastleCheck(moves);
+
+            //for (int i = 0; i < moves.Count; i++)
+            //{
+            //    var tempMove = moves[i];
+            //    var originalPosition = CurrentPosition;
+            //    owningBoard.MovePiece(CurrentPosition, tempMove);
+            //    if (owningBoard.CheckPieceCheck(this))
+            //    {
+            //        moves.RemoveAt(i);
+            //        i--;
+            //    }
+            //    owningBoard.MovePiece(tempMove, originalPosition);
+            //}
+
             return moves;
         }
+
+        //public List<Point> AllowedMoves()
+        //{
+        //    var moves = PossibleMoves();
+        //    for (int i = 0; i < moves.Count; i++)
+        //    {
+        //        var tempMove = moves[i];
+        //        var originalPosition = CurrentPosition;
+        //        owningBoard.MovePiece(CurrentPosition, tempMove);
+        //        if(owningBoard.InCheck(this))
+        //        {
+        //            moves.RemoveAt(i);
+        //            i--;
+        //        }
+        //        owningBoard.MovePiece(tempMove, originalPosition);
+        //    }
+        //    return moves;
+        //}
 
         private void CastleCheck(List<Point> moves)
         {
@@ -89,6 +123,8 @@ namespace ConsoleChess.Pieces
 
             static bool CheckSide(ChessBoard board, int row, int[] moves)
             {
+                if (moves.Length == 0) return false;
+
                 for (int i = 0; i < moves.Length; i++)
                 {
                     if (board[row, moves[i]] is EmptyPiece) continue;

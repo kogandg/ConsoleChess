@@ -6,7 +6,7 @@ namespace ConsoleChess.Pieces
 {
     class EmptyPiece : Piece
     {
-        public EmptyPiece(Point currentPosition, ChessBoard board):base(Color.None, currentPosition, board)
+        public EmptyPiece(Point currentPosition, ChessBoard board):base(PieceColors.None, currentPosition, board)
         {
             FENNotation = '.';
         }

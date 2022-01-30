@@ -6,7 +6,7 @@ namespace ConsoleChess.Pieces
 {
     class Rook : Piece
     {
-        public Rook(Color color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
+        public Rook(PieceColors color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
         {
             if (IsWhite())
             {
