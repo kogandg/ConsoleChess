@@ -438,6 +438,10 @@ namespace ConsoleChess
             {
                 ;
             }
+            if (InCheckMate())
+            {
+                ;
+            }
             if (ShowMoves && !IsPromoting)
             {
                 var moves = GridSquares[CurrentPosition.Y, CurrentPosition.X].AllowedMoves();
@@ -497,7 +501,10 @@ namespace ConsoleChess
                         {
                             ;
                         }
-
+                        if (InCheckMate())
+                        {
+                            ;
+                        }
 
                         if (currentMove == EnPassantTargetSquare)
                         {
@@ -674,7 +681,10 @@ namespace ConsoleChess
             {
                 ;
             }
-
+            if(InCheckMate())
+            {
+                 throw new Exception((isCurrentMoveWhite ? "white" : "black") + " is bad at chess");
+            }
             Console.SetCursorPosition(10, 26);
             Console.Write(CurrentPosition.X);
             Console.SetCursorPosition(12, 26);
@@ -821,12 +831,12 @@ namespace ConsoleChess
                 {
                     
                     Piece current = GridSquares[y, x];
-                    if (current is King && x == 3 && y == 6)
-                    {
-                        Visualizer.DrawBoard(this);
-                        ;
-                    }
-                    //if (current == piece/*current.IsWhite() == isCurrentMoveWhite*/) continue;
+                    //if (current is King && x == 3 && y == 6)
+                    //{
+                    //   // Visualizer.DrawBoard(this);
+                    //    ;
+                    //}
+                    if (current == piece /*|| current.IsWhite() == isCurrentMoveWhite*/) continue;
 
                     var moves = current.PossibleMoves();
                     for(int i = 0; i < moves.Count; i++)
@@ -842,6 +852,7 @@ namespace ConsoleChess
             return false;
         }
 
+
         public bool InCheck()
         {
             for (int y = 0; y < 8; y++)
@@ -849,7 +860,7 @@ namespace ConsoleChess
                 for (int x = 0; x < 8; x++)
                 {
                     Piece current = GridSquares[y, x];
-                    if (current.IsWhite() == isCurrentMoveWhite) continue;
+                    //if (current.IsWhite() == isCurrentMoveWhite) continue;
 
                     var moves = current.PossibleMoves();
                     for (int i = 0; i < moves.Count; i++)
@@ -861,6 +872,36 @@ namespace ConsoleChess
                         }
                     }
                 }
+            }
+            return false;
+        }
+
+        public bool InCheckMate()
+        {
+            
+            if (InCheck())
+            {
+                bool inCheckMate = true;
+                for (int y = 0; y < 8; y++)
+                {
+                    for (int x = 0; x < 8; x++)
+                    {
+                        Piece current = GridSquares[y, x];
+                        if(!(current is EmptyPiece) && current.IsWhite() == isCurrentMoveWhite)//!(current is King))
+                        {
+                            if(current.CurrentPosition.X == 4 && current.CurrentPosition.Y == 0)
+                            {
+                                ;
+                            }
+                            if(current.AllowedMoves().Count > 0)
+                            {
+                                return false;
+                            }
+                        }
+                        
+                    }
+                }
+                return true;
             }
             return false;
         }

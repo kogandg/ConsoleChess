@@ -22,7 +22,7 @@ namespace ConsoleChess.Pieces
             List<Point> moves = new List<Point>();
             if (IsWhite())
             {
-                if (CurrentPosition.Y == 0)
+                if (CurrentPosition.Y == 7)
                 {
                     //owningBoard[CurrentPosition] = new Queen(IsWhite, CurrentPosition);
                 }
@@ -40,7 +40,7 @@ namespace ConsoleChess.Pieces
                         }
                     }
 
-                    if (rightTarget != null && ((!(rightTarget is EmptyPiece) && !rightTarget.IsWhite()) ||(rightTarget.CurrentPosition == owningBoard.EnPassantTargetSquare)))
+                    if (rightTarget != null && ((!(rightTarget is EmptyPiece) && !rightTarget.IsWhite()) || (rightTarget.CurrentPosition == owningBoard.EnPassantTargetSquare)))
                     {
                         moves.Add(rightTarget.CurrentPosition);
                     }
