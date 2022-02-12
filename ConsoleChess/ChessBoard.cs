@@ -124,7 +124,7 @@ namespace ConsoleChess
         {
             StringBuilder FEN = new StringBuilder();
             int blankSpace = 0;
-            for (int x = 7; x >=0; x--)
+            for (int x = 7; x >= 0; x--)
             {
                 for (int y = 0; y < 8; y++)
                 {
@@ -510,11 +510,11 @@ namespace ConsoleChess
                         {
                             if (this[currentMove].IsWhite())
                             {
-                                GridSquares[currentMove.Y + 1, currentMove.X] = fenToPiece['.']?.Invoke(PieceColors.White, new Point(currentMove.Y + 1, currentMove.X));
+                                GridSquares[currentMove.Y - 1, currentMove.X] = fenToPiece['.']?.Invoke(PieceColors.None, new Point(currentMove.Y - 1, currentMove.X));
                             }
                             else
                             {
-                                GridSquares[currentMove.Y - 1, currentMove.X] = fenToPiece['.']?.Invoke(PieceColors.White, new Point(currentMove.Y - 1, currentMove.X));
+                                GridSquares[currentMove.Y + 1, currentMove.X] = fenToPiece['.']?.Invoke(PieceColors.None, new Point(currentMove.Y + 1, currentMove.X));
                             }
                         }
 
@@ -575,7 +575,7 @@ namespace ConsoleChess
             }
             else if (!IsPromoting)
             {
-                Point tempPoint;                
+                Point tempPoint;
                 if (keyPressed == KeyPressed.Left)
                 {
                     ShowMoves = false;
@@ -627,7 +627,7 @@ namespace ConsoleChess
                 }
             }
 
-           
+
 
 
             if (IsPromoting)
@@ -681,9 +681,17 @@ namespace ConsoleChess
             {
                 ;
             }
-            if(InCheckMate())
+            if (InCheckMate())
             {
-                 throw new Exception((isCurrentMoveWhite ? "white" : "black") + " is bad at chess");
+                throw new Exception((isCurrentMoveWhite ? "white" : "black") + " is bad at chess");
+            }
+            if (inStaleMate())
+            {
+                throw new Exception("stalemate");
+            }
+            if (draw())
+            {
+                throw new Exception("draw by insufficient material");
             }
             Console.SetCursorPosition(10, 26);
             Console.Write(CurrentPosition.X);
@@ -823,13 +831,110 @@ namespace ConsoleChess
             counter++;
         }
 
+        bool draw()
+        {
+            var blackPieces = GetPieces(false);
+            var whitePieces = GetPieces(true);
+
+            if (blackPieces.Count > 2 || blackPieces.Count > 2) return false;
+
+            if (blackPieces.Count == 1 && whitePieces.Count == 1) return true;
+
+            Piece blackBishop = null;
+            Piece whiteBishop = null;
+            Piece blackKnight = null;
+            Piece whiteKnight = null;
+            foreach (Piece piece in blackPieces)
+            {
+                if (piece is Bishop)
+                {
+                    blackBishop = piece;
+                }
+                if (piece is Knight)
+                {
+                    blackKnight = piece;
+                }
+            }
+            foreach (Piece piece in whitePieces)
+            {
+                if (piece is Bishop)
+                {
+                    whiteBishop = piece;
+                }
+                if (piece is Knight)
+                {
+                    whiteKnight = piece;
+                }
+            }
+
+            if (whitePieces.Count == 1 && (blackKnight != null || blackBishop != null)) return true;
+            if (blackPieces.Count == 1 && (whiteKnight != null || whiteBishop != null)) return true;
+
+            if (blackBishop != null && whiteBishop != null)
+            {
+                if (blackBishop.IsOnWhite() == whiteBishop.IsOnWhite()) return true;
+            }
+            if (whiteKnight != null ^ blackKnight != null) return true;
+
+            return false;
+        }
+
+        bool inStaleMate()
+        {
+            if (InCheck()) return false;
+            var pieces = GetCurrentPieces();
+
+            foreach (var piece in pieces)
+            {
+                if (piece.AllowedMoves().Count != 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        List<Piece> GetCurrentPieces()
+        {
+            List<Piece> pieces = new List<Piece>();
+            for (int y = 0; y < 8; y++)
+            {
+                for (int x = 0; x < 8; x++)
+                {
+                    Piece current = GridSquares[y, x];
+                    if (!(current is EmptyPiece) && current.IsWhite() == isCurrentMoveWhite)
+                    {
+                        pieces.Add(current);
+                    }
+                }
+            }
+            return pieces;
+        }
+
+        List<Piece> GetPieces(bool isWhite)
+        {
+            List<Piece> pieces = new List<Piece>();
+            for (int y = 0; y < 8; y++)
+            {
+                for (int x = 0; x < 8; x++)
+                {
+                    Piece current = GridSquares[y, x];
+                    if (!(current is EmptyPiece) && current.IsWhite() == isWhite)
+                    {
+                        pieces.Add(current);
+                    }
+                }
+            }
+            return pieces;
+        }
+
         public bool InCheck(Piece piece)
         {
-            for(int y = 0; y < 8; y++)
+            for (int y = 0; y < 8; y++)
             {
-                for(int x = 0; x < 8; x++)
+                for (int x = 0; x < 8; x++)
                 {
-                    
+
                     Piece current = GridSquares[y, x];
                     //if (current is King && x == 3 && y == 6)
                     //{
@@ -839,10 +944,10 @@ namespace ConsoleChess
                     if (current == piece /*|| current.IsWhite() == isCurrentMoveWhite*/) continue;
 
                     var moves = current.PossibleMoves();
-                    for(int i = 0; i < moves.Count; i++)
+                    for (int i = 0; i < moves.Count; i++)
                     {
                         var currentMove = moves[i];
-                        if(GridSquares[currentMove.Y, currentMove.X] is King)
+                        if (GridSquares[currentMove.Y, currentMove.X] is King)
                         {
                             return true;
                         }
@@ -876,29 +981,30 @@ namespace ConsoleChess
             return false;
         }
 
+
+
         public bool InCheckMate()
         {
-            
+
             if (InCheck())
             {
-                bool inCheckMate = true;
                 for (int y = 0; y < 8; y++)
                 {
                     for (int x = 0; x < 8; x++)
                     {
                         Piece current = GridSquares[y, x];
-                        if(!(current is EmptyPiece) && current.IsWhite() == isCurrentMoveWhite)//!(current is King))
+                        if (!(current is EmptyPiece) && current.IsWhite() == isCurrentMoveWhite)//!(current is King))
                         {
-                            if(current.CurrentPosition.X == 4 && current.CurrentPosition.Y == 0)
+                            if (current.CurrentPosition.X == 4 && current.CurrentPosition.Y == 0)
                             {
                                 ;
                             }
-                            if(current.AllowedMoves().Count > 0)
+                            if (current.AllowedMoves().Count > 0)
                             {
                                 return false;
                             }
                         }
-                        
+
                     }
                 }
                 return true;
