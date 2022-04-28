@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using PointLibrary;
+using Interfaces;
 
-namespace ConsoleChess.Pieces
+namespace Pieces
 {
-    class Bishop : Piece
+    public class Bishop : Piece
     {
-        public Bishop(PieceColors color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
+        public Bishop(PieceColors color, Point currentPosition, IChessBoard<Piece> board) : base(color, currentPosition, board)
         {
             if (IsWhite())
             {

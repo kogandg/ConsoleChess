@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using PointLibrary;
+using Interfaces;
 
-namespace ConsoleChess.Pieces
+namespace Pieces
 {
     public class Pawn : Piece
     {
-        public Pawn(PieceColors color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
+        public Pawn(PieceColors color, Point currentPosition, IChessBoard<Piece> board) : base(color, currentPosition, board)
         {
             if (IsWhite())
             {
@@ -28,8 +30,8 @@ namespace ConsoleChess.Pieces
                 }
                 else
                 {
-                    Piece rightTarget = owningBoard[CurrentPosition.Y + 1, CurrentPosition.X + 1];
-                    Piece leftTarget = owningBoard[CurrentPosition.Y + 1, CurrentPosition.X - 1];
+                    Piece rightTarget = (Piece)owningBoard[CurrentPosition.Y + 1, CurrentPosition.X + 1];
+                    Piece leftTarget = (Piece)owningBoard[CurrentPosition.Y + 1, CurrentPosition.X - 1];
 
                     if (owningBoard[CurrentPosition.Y + 1, CurrentPosition.X] is EmptyPiece)
                     {
@@ -52,8 +54,8 @@ namespace ConsoleChess.Pieces
             }
             else
             {
-                Piece rightTarget = owningBoard[CurrentPosition.Y - 1, CurrentPosition.X + 1];
-                Piece leftTarget = owningBoard[CurrentPosition.Y - 1, CurrentPosition.X - 1];
+                Piece rightTarget = (Piece)owningBoard[CurrentPosition.Y - 1, CurrentPosition.X + 1];
+                Piece leftTarget = (Piece)owningBoard[CurrentPosition.Y - 1, CurrentPosition.X - 1];
 
                 if (owningBoard[CurrentPosition.Y - 1, CurrentPosition.X] is EmptyPiece)
                 {

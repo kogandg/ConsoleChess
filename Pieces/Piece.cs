@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using PointLibrary;
+using Interfaces;
 
-namespace ConsoleChess.Pieces
+namespace Pieces
 {
-    public abstract class Piece
+    public abstract class Piece : IPiece
     {
         public char FENNotation { get; protected set; }
         public PieceColors PieceColor { get; protected set; }
         public Point CurrentPosition;
 
-        protected ChessBoard owningBoard { get; set; }
-        public Piece(PieceColors color, Point currentPosition, ChessBoard board)
+        protected IChessBoard<Piece> owningBoard { get; set; }
+        public Piece(PieceColors color, Point currentPosition, IChessBoard<Piece> board)
         {
             CurrentPosition = currentPosition;
             PieceColor = color;
@@ -37,7 +39,7 @@ namespace ConsoleChess.Pieces
         public bool IsOnWhite()
         {
             int sum = CurrentPosition.X + CurrentPosition.Y;
-            if(sum %2==0)
+            if (sum % 2 == 0)
             {
                 return false;
             }
@@ -62,7 +64,7 @@ namespace ConsoleChess.Pieces
                 }
             }
 
-            
+
 
             Piece replace = owningBoard[move];
             Point originalPosition = CurrentPosition;
@@ -91,22 +93,27 @@ namespace ConsoleChess.Pieces
             owningBoard.GridSquares[CurrentPosition.Y, CurrentPosition.X] = replace;
             CurrentPosition = originalPosition;
 
-            if(move == owningBoard.EnPassantTargetSquare)
+            if (move == owningBoard.EnPassantTargetSquare)
             {
                 if (owningBoard[move].IsWhite())
                 {
-                    owningBoard.GridSquares[move.Y - 1, move.X] = enPassantPawn;
+                    owningBoard.GridSquares[move.Y + 1, move.X] = enPassantPawn;
                 }
                 else
                 {
-                    owningBoard.GridSquares[move.Y + 1, move.X] = enPassantPawn;
+                    owningBoard.GridSquares[move.Y - 1, move.X] = enPassantPawn;
                 }
             }
 
             return inCheck;
         }
-    }
 
+        //public abstract List<Point> PosibleMoves();
+    }
+}
+
+namespace Pieces
+{
     public enum PieceColors
     {
         None,

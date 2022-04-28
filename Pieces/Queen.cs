@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using PointLibrary;
+using Interfaces;
 
-namespace ConsoleChess.Pieces
+namespace Pieces
 {
-    class Queen : Piece
+    public class Queen : Piece
     {
-        public Queen(PieceColors color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
+        public Queen(PieceColors color, Point currentPosition, IChessBoard<Piece> board) : base(color, currentPosition, board)
         {
             if (IsWhite())
             {

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using PointLibrary;
+using Interfaces;
 
-namespace ConsoleChess.Pieces
+namespace Pieces
 {
-    class King : Piece
+    public class King : Piece
     {
         struct CastleMoves
         {
@@ -18,7 +20,7 @@ namespace ConsoleChess.Pieces
             public static int BlackRow = 7;
         }
 
-        public King(PieceColors color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
+        public King(PieceColors color, Point currentPosition, IChessBoard<Piece> board) : base(color, currentPosition, board)
         {
             if (IsWhite())
             {
@@ -121,7 +123,7 @@ namespace ConsoleChess.Pieces
             }
 
 
-            static bool CheckSide(ChessBoard board, int row, int[] moves)
+            static bool CheckSide(IChessBoard<Piece> board, int row, int[] moves)
             {
                 if (moves.Length == 0) return false;
 

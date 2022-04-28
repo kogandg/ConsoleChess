@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Interfaces;
+using PointLibrary;
 
-namespace ConsoleChess.Pieces
+namespace Pieces
 {
-    class Rook : Piece
+    public class Rook : Piece
     {
-        public Rook(PieceColors color, Point currentPosition, ChessBoard board) : base(color, currentPosition, board)
+        public Rook(PieceColors color, Point currentPosition, IChessBoard<Piece> board) : base(color, currentPosition, board)
         {
             if (IsWhite())
             {

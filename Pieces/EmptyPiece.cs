@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Interfaces;
+using PointLibrary;
 
-namespace ConsoleChess.Pieces
+namespace Pieces
 {
-    class EmptyPiece : Piece
+    public class EmptyPiece : Piece
     {
-        public EmptyPiece(Point currentPosition, ChessBoard board):base(PieceColors.None, currentPosition, board)
+        public EmptyPiece(Point currentPosition, IChessBoard<Piece> board):base(PieceColors.None, currentPosition, board)
         {
             FENNotation = '.';
         }

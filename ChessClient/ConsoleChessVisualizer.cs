@@ -1,11 +1,13 @@
-﻿using ConsoleChess.Pieces;
+﻿//using ConsoleChess.Pieces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Console = Colorful.Console;
 using System.Drawing;
+using ConsoleChess.Pieces;
+using ConsoleChess;
 
-namespace ConsoleChess
+namespace ChessClient
 {
     public class ConsoleChessVisualizer : IVisualizer
     {
@@ -16,14 +18,14 @@ namespace ConsoleChess
         {
             squareWidth = width;
             squareHeight = height;
-            int c =  95;
+            int c = 95;
             Color color = Color.FromArgb(255, c, c, c);
             Console.BackgroundColor = color;
             Console.Clear();
-            Console.SetWindowSize(1, 35);
+            //Console.SetWindowSize(1, 35);
         }
 
-        public void DrawBoard(ChessBoard chessBoard, Point current, bool showingMoves, Point currentMove, List<Point> moves)
+        public void DrawBoard(ChessBoard chessBoard, ConsoleChess.Point current, bool showingMoves, ConsoleChess.Point currentMove, List<ConsoleChess.Point> moves)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
 
@@ -32,7 +34,7 @@ namespace ConsoleChess
             //Spaced out with outline
             for (int row = 0; row < 8; row++)
             {
-                currentYValue = Math.Abs(row-7);
+                currentYValue = Math.Abs(row - 7);
                 for (int column = 0; column < 8; column++)
                 {
                     Console.ForegroundColor = Color.White;
@@ -70,7 +72,7 @@ namespace ConsoleChess
                 for (int i = 0; i < moves.Count; i++)
                 {
                     Console.ForegroundColor = Color.Blue;
-                    Console.SetCursorPosition(((moves[i].X + 1) * squareWidth) - 4, ((Math.Abs(moves[i].Y-8)) * squareHeight)-1);
+                    Console.SetCursorPosition(((moves[i].X + 1) * squareWidth) - 4, ((Math.Abs(moves[i].Y - 8)) * squareHeight) - 1);
                     //Console.SetCursorPosition(((0 + 1) * squareWidth) - 4, ((1 + 1) * squareHeight) - 1);
                     if (moves[i] == currentMove)
                     {
@@ -89,7 +91,7 @@ namespace ConsoleChess
 
             if (chessBoard.IsPromoting)
             {
-                Point startingPoint = new Point(60, 6);
+                ConsoleChess.Point startingPoint = new ConsoleChess.Point(60, 6);
                 DrawPromotionMenuOutline(startingPoint);
                 for (int i = 0; i < 4; i++)
                 {
@@ -104,7 +106,7 @@ namespace ConsoleChess
             }
             if (chessBoard.HasPromoted)
             {
-                ClearPromotion(new Point(60, 6));
+                ClearPromotion(new ConsoleChess.Point(60, 6));
                 chessBoard.HasPromoted = false;
                 chessBoard.Once = false;
             }
@@ -171,7 +173,7 @@ namespace ConsoleChess
             }
         }
 
-        void DrawPromotionMenuOutline(Point startingPoint)
+        void DrawPromotionMenuOutline(ConsoleChess.Point startingPoint)
         {
             Console.ForegroundColor = Color.Black;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -193,7 +195,7 @@ namespace ConsoleChess
             }
         }
 
-        void ClearPromotion(Point startingPoint)
+        void ClearPromotion(ConsoleChess.Point startingPoint)
         {
             for (int y = 0; y < (4 * squareHeight) + 1; y++)
             {

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Models;
 
-namespace ConsoleChess
+namespace PointLibrary
 {
     public class Point
     {
@@ -28,6 +29,10 @@ namespace ConsoleChess
             if(left is null)
             {
                 return right is null;
+            }
+            if(right is null)
+            {
+                return false;
             }
             return (left.X == right.X && left.Y == right.Y);
         }
@@ -55,6 +60,15 @@ namespace ConsoleChess
         public bool IsAtEnd()
         {
             return Y == 0 || Y == 7;
+        }
+
+        public static implicit operator Point(ChessSquareModel square)
+        {
+            return new Point(square.Col, square.Row);
+        }
+        public static implicit operator ChessSquareModel(Point point)
+        {
+            return new ChessSquareModel { Row = point.Y, Col = point.X };
         }
     }
 }
