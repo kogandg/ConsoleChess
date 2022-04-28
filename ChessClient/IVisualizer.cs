@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using ConsoleChess;
+using ChessLibrary;
+using PointLibrary;
 
 namespace ChessClient
 {

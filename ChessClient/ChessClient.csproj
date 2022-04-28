@@ -12,6 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ChessLibrary\ChessLibrary.csproj" />
+    <ProjectReference Include="..\Pieces\Pieces.csproj" />
     <ProjectReference Include="..\PointLibrary\PointLibrary.csproj" />
   </ItemGroup>
 

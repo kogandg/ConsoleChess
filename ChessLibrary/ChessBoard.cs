@@ -59,7 +59,7 @@ namespace ChessLibrary
         public Point EnPassantTargetSquare { get; private set; }
 
         public List<Point> DrawingPoints;
-        public IVisualizer Visualizer { get; private set; }
+        //public IVisualizer Visualizer { get; private set; }
         static int counter = 0;
         public ChessBoard()//, int width, int height)
         {

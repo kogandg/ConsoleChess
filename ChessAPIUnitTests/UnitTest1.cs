@@ -3,7 +3,7 @@ using Xunit;
 using System.Text.Json;
 using System.Collections.Generic;
 using ChessAPI;
-using ChessAPI.Models;
+using Models;
 
 namespace ChessAPIUnitTests
 {

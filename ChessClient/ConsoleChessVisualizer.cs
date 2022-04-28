@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Text;
 using Console = Colorful.Console;
 using System.Drawing;
-using ConsoleChess.Pieces;
-using ConsoleChess;
+using ChessLibrary;
+using PointLibrary;
+using Pieces;
 
 namespace ChessClient
 {
@@ -25,7 +26,7 @@ namespace ChessClient
             //Console.SetWindowSize(1, 35);
         }
 
-        public void DrawBoard(ChessBoard chessBoard, ConsoleChess.Point current, bool showingMoves, ConsoleChess.Point currentMove, List<ConsoleChess.Point> moves)
+        public void DrawBoard(ChessBoard chessBoard, PointLibrary.Point current, bool showingMoves, PointLibrary.Point currentMove, List<PointLibrary.Point> moves)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
 
@@ -91,7 +92,7 @@ namespace ChessClient
 
             if (chessBoard.IsPromoting)
             {
-                ConsoleChess.Point startingPoint = new ConsoleChess.Point(60, 6);
+                PointLibrary.Point startingPoint = new PointLibrary.Point(60, 6);
                 DrawPromotionMenuOutline(startingPoint);
                 for (int i = 0; i < 4; i++)
                 {
@@ -106,7 +107,7 @@ namespace ChessClient
             }
             if (chessBoard.HasPromoted)
             {
-                ClearPromotion(new ConsoleChess.Point(60, 6));
+                ClearPromotion(new PointLibrary.Point(60, 6));
                 chessBoard.HasPromoted = false;
                 chessBoard.Once = false;
             }
@@ -173,7 +174,7 @@ namespace ChessClient
             }
         }
 
-        void DrawPromotionMenuOutline(ConsoleChess.Point startingPoint)
+        void DrawPromotionMenuOutline(PointLibrary.Point startingPoint)
         {
             Console.ForegroundColor = Color.Black;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -195,7 +196,7 @@ namespace ChessClient
             }
         }
 
-        void ClearPromotion(ConsoleChess.Point startingPoint)
+        void ClearPromotion(PointLibrary.Point startingPoint)
         {
             for (int y = 0; y < (4 * squareHeight) + 1; y++)
             {

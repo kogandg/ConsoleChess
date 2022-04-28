@@ -1,4 +1,4 @@
-﻿using ChessAPI.Models;
+﻿using Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
