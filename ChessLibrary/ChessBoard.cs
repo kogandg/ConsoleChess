@@ -36,8 +36,9 @@ namespace ChessLibrary
 
         //private int squareHeight;
         //private int squareWidth;
+        #region Properties and Fields
         public Dictionary<char, string> FENToScreenOutput { get; private set; }
-        private Dictionary<char, Func<PieceColors, Point, Piece>> fenToPiece;
+        private Dictionary<char, Func<PieceColors, Point, Piece>> fenToPiece { get; set; }
 
         public int CurrentMoveIndex { get; private set; }
         public Point CurrentPosition { get; private set; }
@@ -61,6 +62,8 @@ namespace ChessLibrary
         public List<Point> DrawingPoints;
         //public IVisualizer Visualizer { get; private set; }
         static int counter = 0;
+
+        #endregion
         public ChessBoard()//, int width, int height)
         {
             GridSquares = new Piece[8, 8];

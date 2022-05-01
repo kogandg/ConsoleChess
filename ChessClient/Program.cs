@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text.Json;
+using Models;
+using PointLibrary;
 
 namespace ChessClient
 {
@@ -9,24 +11,118 @@ namespace ChessClient
         {
             BaseAddress = new Uri("http://localhost:5184/Chess/")
         };
+
+        static ConsoleChessVisualizer chessVisualizer;
+        static ChessBoard chessBoard;
+        static ConsoleChessInputManager inputManager;
+
         static async Task Main()
         {
-            ConsoleChessVisualizer chessVisualizer = new ConsoleChessVisualizer(7, 3);
+            chessVisualizer = new ConsoleChessVisualizer(7, 3);
+            inputManager = new ConsoleChessInputManager(Validate);
+
             Guid playerId = new Guid();
             Guid gameId = new Guid();
+            string fen = "";
+            
 
-            DisplayDebugStuff(gameId, playerId);
+            var response = CreateOrJoinGame().Result;
+            
+            playerId = response.PlayerID;
+            gameId = response.GameID;
+            fen = response.FEN;
 
-            var test = await client.GetStringAsync("CreateGame");
+            DisplayDebugStuff(gameId, playerId, fen);
+
+
+            chessBoard = new ChessBoard();
+            chessBoard.FromFEN(fen);
+            chessVisualizer.DrawBackgound();
+
+            //chessVisualizer.DrawBoard(chessBoard, current, chessBoard.ShowMoves, new Point(0, 0), new List<Point>());
             ;
+
+            
         }
 
-        static void DisplayDebugStuff(Guid gameId, Guid playerId)
+        static void RunGame(string fen)
+        {
+            Point current = new Point(0, 0);
+            Point currentMove = new Point(0, 0);
+            List<Point> currentMoves = new List<Point>();
+            string currentFEN = fen;
+            while (true)
+            {
+                chessVisualizer.DrawBoard(chessBoard, current, chessBoard.ShowMoves, currentMove, currentMoves);
+
+                chessBoard.FromFEN(currentFEN);
+                chessVisualizer.DrawBoard(chessBoard, current, chessBoard.ShowMoves, currentMove, currentMoves);
+                var inputInfo = inputManager.GetInput(current);
+
+                //replace everything after this api stuff
+                if (chessBoard.ShowMoves)
+                {
+                    if (inputInfo.isSelected)
+                    {
+                        chessBoard.Update(inputInfo.square);
+                        if (inputInfo.square != null)
+                        {
+                            currentPosition = inputInfo.square;
+                        }
+                    }
+                    else
+                    {
+                        currentMove = inputInfo.square;
+                    }
+                }
+                else
+                {
+                    if (inputInfo.isSelected)
+                    {
+                        chessBoard.Update(currentPosition);
+                        consoleChessInputManager.Moves = chessBoard[currentPosition].AllowedMoves();
+                        currentMoves = consoleChessInputManager.Moves;
+                    }
+                    else
+                    {
+                        currentPosition = inputInfo.square;
+                    }
+                }
+
+                currentFEN = chessBoard.ToFEN();
+
+            }
+        }
+
+        static async Task<GameJoinResponseModel> CreateOrJoinGame()
+        {
+            var responseString = await client.GetStringAsync("JoinGame");
+            var response = JsonSerializer.Deserialize<GameJoinResponseModel>(responseString);
+
+            if (response.GameID == Guid.Empty || response.PlayerID == Guid.Empty)
+            {
+                responseString = await client.GetStringAsync("CreateGame");
+                response = JsonSerializer.Deserialize<GameJoinResponseModel>(responseString, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                });
+            }
+            return response;
+        }
+
+        static bool Validate((Point point, bool thing) stuff)
+        {
+            return stuff.point.IsInside() && !(chessBoard[stuff.point] is Pieces.EmptyPiece) && chessBoard[stuff.point].IsWhite() == chessBoard.IsCurrentMoveWhite;
+        }
+
+        static void DisplayDebugStuff(Guid gameId, Guid playerId, string fen)
         {
             Console.SetCursorPosition(0, 25);
             Console.WriteLine(gameId);
             Console.WriteLine(playerId);
+            Console.WriteLine(fen);
         }
+        
     }
 }
 /*

@@ -61,16 +61,16 @@ namespace ChessAPI.Controllers
                 if (game.Value.White == null)
                 {
                     game.Value.White = player;
-                    return new GameJoinResponseModel(player.PlayerID, game.Key);
+                    return new GameJoinResponseModel() { PlayerID = player.PlayerID, GameID = game.Key, FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
                 }
                 else if (game.Value.Black == null)
                 {
                     game.Value.Black = player;
-                    return new GameJoinResponseModel(player.PlayerID, game.Key);
+                    return new GameJoinResponseModel() { PlayerID = player.PlayerID, GameID = game.Key, FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
                 }
             }
 
-            return NotFound();
+            return new GameJoinResponseModel() { PlayerID = Guid.Empty, GameID = Guid.Empty, FEN = "" };
         }
 
         [HttpGet("JoinGame/{gameId}")]
@@ -83,13 +83,13 @@ namespace ChessAPI.Controllers
                 {
                     Player player = new Player(Guid.NewGuid());
                     game.White = player;
-                    return new GameJoinResponseModel(player.PlayerID, gameId);
+                    return new GameJoinResponseModel() { PlayerID = player.PlayerID, GameID = gameId, FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
                 }
                 if (game.Black == null)
                 {
                     Player player = new Player(Guid.NewGuid());
                     game.Black = player;
-                    return new GameJoinResponseModel(player.PlayerID, gameId);
+                    return new GameJoinResponseModel() { PlayerID = player.PlayerID, GameID = gameId, FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
                 }
             }
             return null;
@@ -117,7 +117,7 @@ namespace ChessAPI.Controllers
             {
                 Games.GamesList[gameId].Black = player;
             }
-            return new GameJoinResponseModel(player.PlayerID, gameId);
+            return new GameJoinResponseModel() { PlayerID = player.PlayerID, GameID = gameId, FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"};
         }
 
         //[HttpGet("CreateGame/{fen}")]

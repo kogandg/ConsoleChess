@@ -1,13 +1,26 @@
-﻿namespace Models
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Models
 {
     public class GameJoinResponseModel
     {       
-        public Guid PlayerID { get; }
-        public Guid GameID { get; }
-        public GameJoinResponseModel(Guid playerID, Guid gameID)
+        //[JsonPropertyName("playerID")]
+        public Guid PlayerID { get; init; }
+        
+        //[JsonPropertyName("gameID")]
+        public Guid GameID { get; init; }
+
+        public string FEN { get; init; }
+        public GameJoinResponseModel(Guid playerID, Guid gameID, string fen)
         {
             PlayerID = playerID;
             GameID = gameID;
+            FEN = fen;
+        }
+        public GameJoinResponseModel()
+        {
+
         }
     }
 }
