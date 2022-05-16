@@ -44,7 +44,7 @@ namespace ChessClient
         public bool qCastle { get; private set; }
 
 
-        public bool ShowMoves { get; private set; }
+        public bool ShowMoves { get; set; }
 
         public Dictionary<char, string> FENToScreenOutput { get; private set; }
         private Dictionary<char, Func<PieceColors, Point, Piece>> fenToPiece { get; set; }
@@ -56,6 +56,7 @@ namespace ChessClient
         public bool HasPromoted { get; set; }
 
         public bool IsCurrentMoveWhite { get; private set; }
+        public bool IsWhite { get; private set; }
 
         public ChessBoard()
         {
@@ -87,6 +88,8 @@ namespace ChessClient
                 ['Q'] = (PieceColors c, Point p) => new Queen(c, p, this),
                 ['K'] = (PieceColors c, Point p) => new King(c, p, this),
             };
+
+            EnPassantTargetSquare = new Point(-1, -1);
         }
 
 
@@ -221,5 +224,11 @@ namespace ChessClient
         {
             throw new NotImplementedException();
         }
+
+        public void SetPlayerColor(bool isWhite)
+        {
+            IsWhite = isWhite;
+        }
+
     }
 }

@@ -62,6 +62,11 @@ namespace PointLibrary
             return Y == 0 || Y == 7;
         }
 
+        public bool IsInValid()
+        {
+            return X == -1 && Y == -1;
+        }
+
         public static implicit operator Point(ChessSquareModel square)
         {
             return new Point(square.Col, square.Row);
@@ -69,6 +74,11 @@ namespace PointLibrary
         public static implicit operator ChessSquareModel(Point point)
         {
             return new ChessSquareModel { Row = point.Y, Col = point.X };
+        }
+
+        public static Point InValid()
+        {
+            return new Point(-1, -1);
         }
     }
 }

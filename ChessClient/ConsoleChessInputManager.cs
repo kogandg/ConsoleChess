@@ -16,8 +16,13 @@ namespace ChessClient
             Moves = new List<Point>();
         }
 
-        public override (Point square, bool isSelected) GetInput(Point current)
+        public override (Point square, bool isSelected) GetInput(Point current, bool isWhite)
         {
+            if(!Console.KeyAvailable)
+            {
+                return (Point.InValid(), false);
+            }
+
             var keyPressed = Console.ReadKey(true).Key;
             bool isSelected = keyPressed == ConsoleKey.Enter;
 
@@ -28,24 +33,24 @@ namespace ChessClient
                     movesIndex = 0;
                     return (current, true);
                 }
-
+                //Moves.Clear();
                 switch (keyPressed)
                 {
                     case ConsoleKey.LeftArrow:
-                        return (currentPositionMoveHelper(current, new Point(-1, 0)), false);
-                        break;
+                        return (currentPositionMoveHelper(current, new Point(isWhite ? -1 : 1, 0)), false);
+                    //break;
 
                     case ConsoleKey.RightArrow:
-                        return (currentPositionMoveHelper(current, new Point(1, 0)), false);
-                        break;
+                        return (currentPositionMoveHelper(current, new Point(isWhite? 1: -1, 0)), false);
+                    //break;
 
                     case ConsoleKey.UpArrow:
-                        return (currentPositionMoveHelper(current, new Point(0, 1)), false);
-                        break;
+                        return (currentPositionMoveHelper(current, new Point(0, isWhite ? 1 : -1)), false);
+                    //break;
 
                     case ConsoleKey.DownArrow:
-                        return (currentPositionMoveHelper(current, new Point(0, -1)), false);
-                        break;
+                        return (currentPositionMoveHelper(current, new Point(0, isWhite ? -1 : 1)), false);
+                    //break;
 
                     default:
                         return (current, false);
@@ -53,7 +58,7 @@ namespace ChessClient
             }
             else
             {
-                if(isSelected)
+                if (isSelected)
                 {
                     var move = Moves[movesIndex];
                     Moves.Clear();
@@ -61,22 +66,22 @@ namespace ChessClient
                     return (move, true);
                 }
 
-                switch(keyPressed)
+                switch (keyPressed)
                 {
                     case ConsoleKey.RightArrow:
                         moveMoveHelper(new Point(1, 0), Moves.Count);
                         return (Moves[movesIndex], false);
-                        break;
+                    //break;
 
                     case ConsoleKey.LeftArrow:
                         moveMoveHelper(new Point(-1, 0), Moves.Count);
                         return (Moves[movesIndex], false);
-                        break;
+                    //break;
 
                     case ConsoleKey.Escape:
                         Moves.Clear();
-                        return (null, true);
-                        break;
+                        return (Point.InValid(), true);
+                    //break;
 
                     default:
                         return (Moves[movesIndex], false);

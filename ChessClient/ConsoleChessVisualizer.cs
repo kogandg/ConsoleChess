@@ -26,13 +26,13 @@ namespace ChessClient
             //Console.SetWindowSize(1, 35);
         }
 
-        public void DrawBoard(ChessBoard chessBoard, PointLibrary.Point current, bool showingMoves, PointLibrary.Point currentMove, List<PointLibrary.Point> moves)
+        public void DrawBoard(ChessBoard chessBoard, PointLibrary.Point current, PointLibrary.Point currentMove, List<PointLibrary.Point> moves)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
 
             int currentYValue;
 
-            //Spaced out with outline
+            //Spaced out with outline//Actual drawing of pieces
             for (int row = 0; row < 8; row++)
             {
                 currentYValue = Math.Abs(row - 7);
@@ -56,12 +56,19 @@ namespace ChessClient
                             Console.ForegroundColor = Color.Yellow;//Color.FromArgb(255, 249, 241, 165);
                         }
                     }
-                    Console.SetCursorPosition(((column + 1) * squareWidth) - 4, ((row + 1) * squareHeight) - 1);
+                    if (chessBoard.IsWhite)
+                    {
+                        Console.SetCursorPosition(((column + 1) * squareWidth) - 4, ((row + 1) * squareHeight) - 1);
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition(((Math.Abs(column-8)) * squareWidth) - 4, ((Math.Abs(row-8)) * squareHeight) - 1);
+                    }
                     Console.Write(chessBoard.FENToScreenOutput[output.FENNotation]);//fenToCentered[GridSquares[row, column]]);
                 }
             }
 
-            if (showingMoves)
+            if (chessBoard.ShowMoves)
             {
                 //Console.ForegroundColor = Color.Green;
                 //var moves = chessBoard.DrawingPoints;
@@ -73,7 +80,14 @@ namespace ChessClient
                 for (int i = 0; i < moves.Count; i++)
                 {
                     Console.ForegroundColor = Color.Blue;
-                    Console.SetCursorPosition(((moves[i].X + 1) * squareWidth) - 4, ((Math.Abs(moves[i].Y - 8)) * squareHeight) - 1);
+                    if (chessBoard.IsWhite)
+                    {
+                        Console.SetCursorPosition(((moves[i].X + 1) * squareWidth) - 4, ((Math.Abs(moves[i].Y - 8)) * squareHeight) - 1);
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition((Math.Abs(moves[i].X -8) * squareWidth) - 4, ((Math.Abs(moves[i].Y +1)) * squareHeight) - 1);
+                    }
                     //Console.SetCursorPosition(((0 + 1) * squareWidth) - 4, ((1 + 1) * squareHeight) - 1);
                     if (moves[i] == currentMove)
                     {

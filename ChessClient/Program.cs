@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Text.Json;
 using Models;
 using PointLibrary;
@@ -15,60 +16,111 @@ namespace ChessClient
         static ConsoleChessVisualizer chessVisualizer;
         static ChessBoard chessBoard;
         static ConsoleChessInputManager inputManager;
+        static Guid gameID;
+        static Guid playerID;
+        static JsonSerializerOptions jsonSerializerOptions;
+        static DateTime lastPollTime;
+        static DateTime lastDrawTime;
+        static TimeSpan pollTimeSpan;
+        static TimeSpan drawTimeSpan;
 
         static async Task Main()
         {
             chessVisualizer = new ConsoleChessVisualizer(7, 3);
             inputManager = new ConsoleChessInputManager(Validate);
 
-            Guid playerId = new Guid();
-            Guid gameId = new Guid();
+            lastPollTime = DateTime.MinValue;
+            lastDrawTime = DateTime.MinValue;
+            pollTimeSpan = TimeSpan.FromMilliseconds(50);
+            drawTimeSpan = TimeSpan.FromMilliseconds(200);
+
+            jsonSerializerOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            };
+
             string fen = "";
-            
+
 
             var response = CreateOrJoinGame().Result;
-            
-            playerId = response.PlayerID;
-            gameId = response.GameID;
+
+            playerID = response.PlayerID;
+            gameID = response.GameID;
             fen = response.FEN;
 
-            DisplayDebugStuff(gameId, playerId, fen);
+            DisplayDebugStuff(gameID, playerID, fen);
+
+            while (!await ArePlayersInCurrentGame())//kinda dumb but works as a waiting room for a full game
+            {
+
+            }
 
 
             chessBoard = new ChessBoard();
             chessBoard.FromFEN(fen);
+            chessBoard.SetPlayerColor(response.IsWhite);
             chessVisualizer.DrawBackgound();
 
+            await RunGame(fen);
+            
             //chessVisualizer.DrawBoard(chessBoard, current, chessBoard.ShowMoves, new Point(0, 0), new List<Point>());
             ;
-
-            
         }
 
-        static void RunGame(string fen)
+        static async Task RunGame(string fen)
         {
             Point current = new Point(0, 0);
             Point currentMove = new Point(0, 0);
             List<Point> currentMoves = new List<Point>();
             string currentFEN = fen;
+            Task<string> polling = Task<string>.FromResult(fen);
+
             while (true)
             {
-                chessVisualizer.DrawBoard(chessBoard, current, chessBoard.ShowMoves, currentMove, currentMoves);
+                if(lastPollTime + pollTimeSpan <= DateTime.Now)
+                {
+                    lastPollTime = DateTime.Now;
+                    polling = PollState();
+                }
+                if(polling.IsCompleted)
+                {
+                    currentFEN = polling.Result;
+                }
 
-                chessBoard.FromFEN(currentFEN);
-                chessVisualizer.DrawBoard(chessBoard, current, chessBoard.ShowMoves, currentMove, currentMoves);
-                var inputInfo = inputManager.GetInput(current);
+                if (lastDrawTime + pollTimeSpan <= DateTime.Now)
+                {
+                    chessBoard.FromFEN(currentFEN);
+                    chessVisualizer.DrawBoard(chessBoard, current, currentMove, currentMoves);
+                    lastDrawTime = DateTime.Now;
+                }
+                var inputInfo = inputManager.GetInput(current, chessBoard.IsWhite);
+                DisplayDebugStuff(gameID, playerID, currentFEN);
 
-                //replace everything after this api stuff
+                if (inputInfo.square.IsInValid())
+                {
+                    if (inputInfo.isSelected)
+                    {
+                        chessBoard.ShowMoves = false;
+                    }
+                    continue;
+                }
+
+
                 if (chessBoard.ShowMoves)
                 {
                     if (inputInfo.isSelected)
                     {
-                        chessBoard.Update(inputInfo.square);
-                        if (inputInfo.square != null)
+                        MakeMoveModel model = new MakeMoveModel(playerID, current, inputInfo.square);
+                        StringContent content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
+                        var thing = await client.PostAsync($"MakeMove/{gameID}", content);
+                        var stringResponse = await thing.Content.ReadAsStringAsync();
+                        var response = JsonSerializer.Deserialize<ChessMoveResposeModel>(stringResponse, jsonSerializerOptions);
+                        if (response.Valid)
                         {
-                            currentPosition = inputInfo.square;
+                            currentFEN = response.FEN;
                         }
+                        chessBoard.ShowMoves = false;
+                        ;
                     }
                     else
                     {
@@ -79,17 +131,51 @@ namespace ChessClient
                 {
                     if (inputInfo.isSelected)
                     {
-                        chessBoard.Update(currentPosition);
-                        consoleChessInputManager.Moves = chessBoard[currentPosition].AllowedMoves();
-                        currentMoves = consoleChessInputManager.Moves;
+                        StringContent content = new StringContent(JsonSerializer.Serialize<MakeSelectionModel>(new MakeSelectionModel(playerID, inputInfo.square)), Encoding.UTF8, "application/json");
+                        var thing = await client.PostAsync($"MakeSelection/{gameID}", content);
+                        var stringResponse = await thing.Content.ReadAsStringAsync();
+                        var response = JsonSerializer.Deserialize<ChessSquareResponseModel>(stringResponse, jsonSerializerOptions);
+                        currentMoves = response.Moves.Select(x => (Point)x).ToList();
+                        inputManager.Moves = currentMoves;
+                        chessBoard.ShowMoves = true;
                     }
                     else
                     {
-                        currentPosition = inputInfo.square;
+                        current = inputInfo.square;
                     }
                 }
 
-                currentFEN = chessBoard.ToFEN();
+                //replace everything after this api stuff
+                //if (chessBoard.ShowMoves)
+                //{
+                //    if (inputInfo.isSelected)
+                //    {
+                //        chessBoard.Update(inputInfo.square);
+                //        if (inputInfo.square != null)
+                //        {
+                //            currentPosition = inputInfo.square;
+                //        }
+                //    }
+                //    else
+                //    {
+                //        currentMove = inputInfo.square;
+                //    }
+                //}
+                //else
+                //{
+                //    if (inputInfo.isSelected)
+                //    {
+                //        chessBoard.Update(currentPosition);
+                //        consoleChessInputManager.Moves = chessBoard[currentPosition].AllowedMoves();
+                //        currentMoves = consoleChessInputManager.Moves;
+                //    }
+                //    else
+                //    {
+                //        currentPosition = inputInfo.square;
+                //    }
+                //}
+
+                //chessBoard.FromFEN(currentFEN);
 
             }
         }
@@ -97,32 +183,40 @@ namespace ChessClient
         static async Task<GameJoinResponseModel> CreateOrJoinGame()
         {
             var responseString = await client.GetStringAsync("JoinGame");
-            var response = JsonSerializer.Deserialize<GameJoinResponseModel>(responseString);
+            var response = JsonSerializer.Deserialize<GameJoinResponseModel>(responseString, jsonSerializerOptions);
 
             if (response.GameID == Guid.Empty || response.PlayerID == Guid.Empty)
             {
                 responseString = await client.GetStringAsync("CreateGame");
-                response = JsonSerializer.Deserialize<GameJoinResponseModel>(responseString, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                });
+                response = JsonSerializer.Deserialize<GameJoinResponseModel>(responseString, jsonSerializerOptions);
             }
             return response;
         }
 
+        static async Task<bool> ArePlayersInCurrentGame()
+        {
+            return JsonSerializer.Deserialize<bool>( await client.GetStringAsync($"InFullGame/{gameID}"));
+        }
+
+
         static bool Validate((Point point, bool thing) stuff)
         {
-            return stuff.point.IsInside() && !(chessBoard[stuff.point] is Pieces.EmptyPiece) && chessBoard[stuff.point].IsWhite() == chessBoard.IsCurrentMoveWhite;
+            return stuff.point.IsInside() && !(chessBoard[stuff.point] is Pieces.EmptyPiece) && chessBoard[stuff.point].IsWhite() == chessBoard.IsWhite;
         }
 
         static void DisplayDebugStuff(Guid gameId, Guid playerId, string fen)
         {
             Console.SetCursorPosition(0, 25);
-            Console.WriteLine(gameId);
-            Console.WriteLine(playerId);
+            Console.WriteLine($"gameId:   {gameId}");
+            Console.WriteLine($"playerId: {playerId}");
             Console.WriteLine(fen);
         }
-        
+
+        static async Task<string> PollState()
+        {
+            return await client.GetStringAsync($"GetFen/{gameID}");
+        }
+
     }
 }
 /*

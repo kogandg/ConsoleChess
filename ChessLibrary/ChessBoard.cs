@@ -264,7 +264,7 @@ namespace ChessLibrary
             Escape
         }
 
-        public void Update(Point position, Point from)//KeyPressed keyPressed)//need to make an input manager that works for both console and mono
+        public void Update(Point position, Point from)
         {
             if (position == null)
             {
@@ -276,14 +276,11 @@ namespace ChessLibrary
             }
 
 
-            //var moves = GridSquares[CurrentPosition.Y, CurrentPosition.X].AllowedMoves();
-
-
             GridSquares[position.Y, position.X] = GridSquares[from.Y, from.X];
             GridSquares[from.Y, from.X] = new EmptyPiece(CurrentPosition, this);
             GridSquares[position.Y, position.X].CurrentPosition = position;
             from = position;
-            // = false;
+
             #region stuff
             //if (keyPressed == KeyPressed.Right)
             //{
@@ -472,6 +469,8 @@ namespace ChessLibrary
             //}
             #endregion
 
+
+            #region Castle Checks
             if (!(GridSquares[0, 0] is Rook))
             {
                 QCastle = false;
@@ -498,6 +497,9 @@ namespace ChessLibrary
                 kCastle = false;
                 qCastle = false;
             }
+            #endregion
+
+            #region Game Ending stuff
             if (InCheckMate())
             {
                 throw new Exception((IsCurrentMoveWhite ? "white" : "black") + " is bad at chess");
@@ -510,13 +512,10 @@ namespace ChessLibrary
             {
                 throw new Exception("draw by insufficient material");
             }
-
-            //Console.SetCursorPosition(10, 26);
-            //Console.Write(CurrentPosition.X);
-            //Console.SetCursorPosition(12, 26);
-            //Console.WriteLine(CurrentPosition.Y);
+            #endregion
         }
 
+        #region Many Functions
 
         #region MoveHelpers
 
@@ -649,6 +648,7 @@ namespace ChessLibrary
         //    counter++;
         //}
 
+
         bool draw()
         {
             var blackPieces = GetPieces(false);
@@ -756,11 +756,11 @@ namespace ChessLibrary
             return chessSquare.IsInside();
         }
 
-        public bool IsOwnPiece(Point chessSquare, bool currentIsWhite)
+        public bool IsOwnPiece(Point chessSquare, bool isWhite)
         {
             if (!chessSquare.IsInside()) return false;
             if (this[chessSquare] is EmptyPiece) return false;
-            return this[chessSquare].IsWhite() == currentIsWhite;
+            return this[chessSquare].IsWhite() == isWhite;
         }
 
         public List<Point> GetMoves(Point chessSquare)
@@ -853,7 +853,7 @@ namespace ChessLibrary
             }
             return false;
         }
-
+        #endregion
 
     }
 }

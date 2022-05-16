@@ -13,6 +13,6 @@ namespace ChessClient
             Validate = validate;
         }
         //public abstract (T square, bool isSelected) GetInput();
-        public abstract (T square, bool isSelected) GetInput(T current);
+        public abstract (T square, bool isSelected) GetInput(T current, bool isWhite);
     }
 }

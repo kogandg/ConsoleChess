@@ -8,7 +8,7 @@ namespace ChessClient
 {
     public interface IVisualizer
     {
-        void DrawBoard(ChessBoard chessBoard, Point current, bool showingMoves, Point currentMove, List<Point> moves);
+        void DrawBoard(ChessBoard chessBoard, Point current, Point currentMove, List<Point> moves);
         void DrawBackgound();
     }
 }
