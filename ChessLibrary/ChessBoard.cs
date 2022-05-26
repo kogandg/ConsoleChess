@@ -275,13 +275,21 @@ namespace ChessLibrary
                 return;
             }
 
+            if (this[from] is Pawn)
+            {
+                if(Math.Abs(position.Y - from.Y) == 2)
+                {
+                    EnPassantTargetSquare = new Point(from.X, from.Y + (int)Math.CopySign(1, position.Y - from.Y));
+                }
+            }
 
             GridSquares[position.Y, position.X] = GridSquares[from.Y, from.X];
             GridSquares[from.Y, from.X] = new EmptyPiece(CurrentPosition, this);
             GridSquares[position.Y, position.X].CurrentPosition = position;
             from = position;
 
-            #region stuff
+
+            #region oldMovement
             //if (keyPressed == KeyPressed.Right)
             //{
             //    moveMoveHelper(new Point(1, 0), moves.Count);
@@ -290,6 +298,9 @@ namespace ChessLibrary
             //{
             //    moveMoveHelper(new Point(-1, 0), moves.Count);
             //}
+            #endregion
+
+            #region escAndEnter
             //if (keyPressed == KeyPressed.Escape)
             //{
             //    ShowMoves = false;
@@ -297,7 +308,9 @@ namespace ChessLibrary
             //}
             //if (keyPressed == KeyPressed.Enter)
             //{
+            #endregion
 
+            #region enPassantThing
             //    ShowMoves = false;
             //    if (moves.Count != 0)
             //    {
@@ -308,7 +321,7 @@ namespace ChessLibrary
             //        {
             //            prevPawnMove = CurrentPosition;
             //        }
-
+            #endregion
 
             //        Point currentMove = moves[CurrentMoveIndex];
 
@@ -318,6 +331,7 @@ namespace ChessLibrary
             //        CurrentMoveIndex = 0;
             //        CurrentPosition = currentMove;
 
+            #region moreEnpassant
             //        if (currentMove == EnPassantTargetSquare)
             //        {
             //            if (this[currentMove].IsWhite())
@@ -345,7 +359,9 @@ namespace ChessLibrary
             //            EnPassantTargetSquare.X = -1;
             //            EnPassantTargetSquare.Y = -1;
             //        }
+            #endregion
 
+            #region Promoting
             //        if (this[currentMove] is Pawn)
             //        {
             //            if (currentMove.Y == 0 || currentMove.Y == 7)
@@ -353,7 +369,9 @@ namespace ChessLibrary
             //                IsPromoting = true;
             //            }
             //        }
+            #endregion
 
+            #region CastleMoving
             //        if (this[currentMove] is King)
             //        {
             //            if (currentMove.X == 6)
@@ -379,13 +397,15 @@ namespace ChessLibrary
             //                }
             //            }
             //        }
+            #endregion
 
             //        IsCurrentMoveWhite = !IsCurrentMoveWhite;
             //        justMoved = true;
             //    }
             //}
-            #endregion
-            #region stuff
+
+
+            #region promotionStuff
             //if (!IsPromoting)
             //{
             //    ShowMoves = true;

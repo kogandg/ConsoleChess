@@ -24,10 +24,12 @@ namespace Pieces
             List<Point> moves = new List<Point>();
             if (IsWhite())
             {
+                //promotion thing
                 if (CurrentPosition.Y == 7)
                 {
                     //owningBoard[CurrentPosition] = new Queen(IsWhite, CurrentPosition);
                 }
+
                 else
                 {
                     Piece rightTarget = (Piece)owningBoard[CurrentPosition.Y + 1, CurrentPosition.X + 1];
