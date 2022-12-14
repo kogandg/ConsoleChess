@@ -1,2 +1,2 @@
 # ConsoleChess
-Better than Logan's "normal" chess
+Chess played in the text console
